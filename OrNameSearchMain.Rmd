@@ -1,0 +1,105 @@
+---
+title: "OrSearchMain"
+author: "Paul Ernst"
+date: "3/2/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+***
+
+```{r setup}
+# Put any RMarkdown options you'd like to have throughout the document here
+# These are the options I like to use to make figures smaller 
+# and print code output right below the command:
+knitr::opts_chunk$set(fig.width=6, fig.asp = 0.618, collapse=TRUE) 
+```
+
+***
+
+## Finding Names That End With -or
+
+ * __Purpose:__ Finding Names That End With -or
+ * __Inputs:__ Listofnames_Complete_List_Names.json
+ * __Outputs:__ None
+ * __Side Effects:__ All names and count that end with -or
+ 
+***
+
+#### Import data from JSON
+
+***
+
+First we need the data. We obtain it by cloning the database found at https://www.back4app.com/database/back4app/list-of-names-dataset/all-names to our own database, then exporting via JSON to get all the names in one place. File is in github folder along with project files.
+
+```{r}
+# Load the package required to read JSON files as well as tidyverse for sorting functions
+library("rjson")
+library("tidyverse")
+
+# Give the input file name to the function -- result should be "large list" of 318.1 MB
+namesList<- fromJSON(file = "Listofnames_Complete_List_Names.json")
+
+```
+
+#### Loop thru data for names that match an ending with -or.
+
+***
+
+```{r}
+#Final name vector - initialize
+finalNames = NULL
+
+#Loop through list
+for (i in 1:length(namesList[[1]])) {
+  currName = namesList[[1]][[i]]$Name
+  
+  #Use regex to discriminate
+  if (!is.na(str_extract(currName,"or$"))) {
+    finalNames = rbind(finalNames, currName)
+  }
+}
+
+#Remove duplicates
+finalNames = unique(finalNames)
+
+#Sort list
+finalNames = str_sort(finalNames)
+
+#Print final list
+print(finalNames)
+```
+
+#### Check Crawled Source
+
+***
+
+It seems our found list is incomplete. There's not a Gregor or a Fyodor anywhere in sight! Let's try another list, crawled from the internet, at https://github.com/aakashkag/People-Name-List/blob/master/Crawled-People-Names/First%20names, downloaded to a txt file in this folder (Firstnames.txt). This is from the internet, though, so we may get some... odd... results.
+
+```{r}
+#We can retain the same data structure and function structure we used earlier:
+
+namesListCrawled = read.table("Firstnames.txt", header = FALSE, sep = "")
+#Loop through list
+for (i in 1:length(namesListCrawled[[1]])) {
+  currName = namesListCrawled[[1]][[i]]
+  
+  #Use regex to discriminate
+  if (!is.na(str_extract(currName,"or$"))) {
+    finalNames = rbind(finalNames, currName)
+  }
+}
+
+#Sort list - we put this first to coerce type back to proper list
+finalNames = str_sort(finalNames)
+
+#Remove duplicates
+finalNames = unique(finalNames)
+
+#Sort list
+finalNames = str_sort(finalNames)
+
+#Print final list!
+print(finalNames)
+```
