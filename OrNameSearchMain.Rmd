@@ -102,4 +102,7 @@ finalNames = str_sort(finalNames)
 
 #Print final list!
 print(finalNames)
+
+#Write names to file
+write(finalNames, "nameFileFinal.txt")
 ```
